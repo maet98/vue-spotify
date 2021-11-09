@@ -11,67 +11,6 @@
         <tracks-list :tracks="getTracks" />
       </template>
 
-      <template v-if="isPlaylistsExists">
-        <entity-header
-          @click.native="goTo('search-playlist')"
-          title="Playlists"
-          small
-        />
-
-        <media-container>
-          <media-object
-            v-for="(playlist, index) in playlists.items"
-            v-if="index < maxResults"
-            :key="playlist.id"
-            :id="playlist.id"
-            :uri="playlist.uri"
-            :coverImg="playlist.images"
-            :name="playlist.name"
-            :type="playlist.type"
-          />
-        </media-container>
-      </template>
-
-      <template v-if="isAlbumsExists">
-        <entity-header
-          @click.native="goTo('search-album')"
-          title="Albums"
-          small
-        />
-        <media-container>
-          <media-object
-            v-for="(album, index) in albums.items"
-            v-if="index < maxResults"
-            :key="album.id"
-            :id="album.id"
-            :uri="album.uri"
-            :coverImg="album.images"
-            :name="album.name"
-            :artists="album.artists"
-            :type="album.type"
-          />
-        </media-container>
-      </template>
-
-      <template v-if="isArtistsExists">
-        <entity-header
-          @click.native="goTo('search-artist')"
-          title="Artists"
-          small
-        />
-        <media-container>
-          <media-object
-            v-for="(artist, index) in artists.items"
-            v-if="index < maxResults"
-            :key="artist.id"
-            :id="artist.id"
-            :uri="artist.uri"
-            :name="artist.name"
-            :type="artist.type"
-            :coverImg="artist.images"
-          />
-        </media-container>
-      </template>
     </div>
   </div>
 </template>

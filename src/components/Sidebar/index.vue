@@ -2,12 +2,11 @@
   <div class="sidebar">
     <div class="sidebar__inner" v-scroll @scrollReachBottom="loadMore">
       <sidebar-nav :links="browse" />
-      <sidebar-nav title="Library" :links="library" />
       <sidebar-nav title="Playlists" :links="playlists.items" />
     </div>
     <button class="sidebar__btn" @click="$modal.show('playlist-create-modal')">
       <icon class="sidebar__btn-icon" name="plus" />
-      <span>New playlist</span>
+      <span>New songs</span>
     </button>
     <!-- @todo cover -->
     <playlist-create-modal />

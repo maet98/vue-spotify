@@ -8,8 +8,8 @@
 
 <script>
   import NavbarHistory from "./NavbarHistory";
-  import NavbarSearch from "./NavbarSearch";
   import NavbarNav from "./NavbarNav";
+  import NavbarSearch from "./NavbarSearch";
 
   export default {
     name: "navbar",

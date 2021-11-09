@@ -1,23 +1,16 @@
 <template>
-  <div class="playlist-create-modal">
+  <div class="playlist-create-modal" width="500px" height="500px">
     <v-modal :modalName="modalName">
       <template slot="header">
-        Create Playlist
+        Register Song
       </template>
       <template slot="body">
         <form>
           <div>
             <label for="name">Name</label>
-            <input id="name" name="name" v-model="name" maxlength="100" />
-          </div>
-          <div>
-            <label for="description">Description</label>
-            <textarea
-              id="description"
-              name="description"
-              v-model="description"
-              maxlength="300"
-            ></textarea>
+            <input id="name" name="name" v-model="name" maxlength="100"/>
+            <button @click.prevent="getSearchTrack">search</button>
+            <tracks-list :tracks="getTracks" />
           </div>
         </form>
       </template>
@@ -31,15 +24,17 @@
 
 <script>
   import api from "@/api";
-  import { mapGetters, mapActions } from "vuex";
+  import { mapGetters, mapActions, mapState } from "vuex";
   import VButton from "@/components/VButton";
   import VModal from "@/components/VModal";
+  import TracksList from "@/components/TracksList";
 
   export default {
     name: "playlist-modal",
 
     components: {
       VButton,
+      TracksList,
       VModal
     },
 
@@ -47,23 +42,45 @@
       return {
         modalName: "playlist-create-modal",
         name: "",
-        description: ""
+        description: "",
+        isMore: null
       };
     },
 
     computed: {
       ...mapGetters({
         user: "user/getProfile"
-      })
+      }),
+
+      ...mapState(
+        "search", [
+        "query",
+        "result",
+        "isLoading",
+        "error",
+        "albums",
+        "tracks",
+        "artists",
+        "playlists"
+      ]),
+
+      getTracks() {
+        return this.tracks && this.tracks.items
+          ? Object.keys(this.tracks.items)
+              .slice(0, 5)
+              .map((key) => ({ ...this.tracks.items[key] }))
+          : [];
+      }
     },
 
     methods: {
       ...mapActions({
-        addNotification: "notification/add",
-        getUserPlaylists: "user/getCurrentUserPlaylists",
-        clearUserPlaylists: "user/clearUserPlaylists"
+        search: "search/search"
       }),
-
+      async getSearchTrack() {
+        console.log("get search track")
+        this.search(this.name)
+      },
       hide() {
         this.$modal.hide(this.modalName);
       },
