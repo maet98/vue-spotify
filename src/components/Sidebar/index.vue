@@ -1,15 +1,14 @@
 <template>
   <div class="sidebar">
     <div class="sidebar__inner" v-scroll @scrollReachBottom="loadMore">
-      <sidebar-nav :links="browse" />
-      <sidebar-nav title="Playlists" :links="playlists.items" />
+      <sidebar-nav title="Daily mix" :links="emotions" />
     </div>
-    <button class="sidebar__btn" @click="$modal.show('playlist-create-modal')">
+    <button class="sidebar__btn" @click="openModal()">
       <icon class="sidebar__btn-icon" name="plus" />
-      <span>New songs</span>
+      <span>Nueva Cancion</span>
     </button>
     <!-- @todo cover -->
-    <playlist-create-modal />
+    <playlist-create-modal :showModal="showModal" :close="closeModal"/>
   </div>
 </template>
 
@@ -20,7 +19,37 @@
 
   export default {
     name: "sidebar",
-
+    data() {
+      return {
+        showModal: false,
+        emotions: [
+          {
+            name: "Felicidad",
+            uri: "/playlist/happy",
+            id: "happy",
+            type: "playlist"
+          },
+          {
+            name: "Tranquilidad",
+            uri: "/playlist/calm",
+            id: "calm",
+            type: "playlist"
+          },
+          {
+            name: "Tristeza",
+            uri: "/playlist/sad",
+            id: "sad",
+            type: "playlist"
+          },
+          {
+            name: "Ira",
+            uri: "/playlist/angry",
+            id: "angry",
+            type: "playlist"
+          }
+        ]
+      }
+    },
     components: {
       PlaylistCreateModal,
       SidebarNav
@@ -62,7 +91,12 @@
       ...mapActions("user", {
         getUserPlaylists: "getCurrentUserPlaylists"
       }),
-
+      openModal() {
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+      },
       loadMore() {
         //@todo
         this.getUserPlaylists(25);

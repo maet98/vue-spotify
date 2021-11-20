@@ -60,11 +60,6 @@ const router = new Router({
           component: SearchArtistView
         },
         {
-          path: "playlist/:query",
-          name: "search-playlist",
-          component: SearchPlaylistView
-        },
-        {
           path: "track/:query",
           name: "search-track",
           component: SearchTrackView
@@ -136,7 +131,7 @@ const router = new Router({
     },
 
     {
-      path: "/user/:user_id/playlist/:playlist_id",
+      path: "/playlist/:playlist_id",
       name: "playlist",
       component: PlaylistView
     },

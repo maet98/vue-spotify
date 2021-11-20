@@ -59,14 +59,12 @@
 
 <script>
   import { mapGetters } from "vuex";
-  import PlaylistUpdateModal from "@/components/PlaylistUpdateModal";
   import EntityAction from "./EntityAction";
 
   export default {
     name: "entity-info",
 
     components: {
-      PlaylistUpdateModal,
       EntityAction
     },
 

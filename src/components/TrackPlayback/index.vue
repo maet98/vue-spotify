@@ -70,6 +70,7 @@
         ) {
           api.spotify.player.play();
         } else {
+          console.log(this.tracksUris)
           api.spotify.player.play(
             null,
             { uri: this.trackUri },

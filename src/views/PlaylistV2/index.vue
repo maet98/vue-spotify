@@ -13,7 +13,7 @@
         :playlistID="playlistID"
         :ownerID="playlist.owner.id"
       />
-      <tracks-table :tracks="tracks" :contextUri="playlist.uri" />
+      <tracks-table :tracks="tracks.items" :contextUri="playlist.uri" />
     </div>
   </div>
 </template>
@@ -23,7 +23,6 @@
   import { mapGetters, mapActions } from "vuex";
   import EntityInfo from "@/components/EntityInfo";
   import TracksTable from "@/components/TracksTable";
-  import Axios from 'axios';
 
   export default {
     name: "playlist-view",
@@ -81,12 +80,6 @@
         } catch (e) {
           this.notFoundPage(true);
         }
-        this.getPlaylistTracksv2()
-      },
-      async getPlaylistTracksv2() {
-        const res = await Axios.get("http://localhost:8000/song/playlists/"+this.playlistID)
-        console.log(res.data);
-        this.tracks = res.data;
       },
 
       async loadMore(ev) {
@@ -106,8 +99,8 @@
         this.userID = user_id;
         this.playlistID = playlist_id;
 
-        // this.initData();
-        this.getPlaylistTracksv2();
+        this.initData();
+        this.getPlaylistTracks(this.userID, this.playlistID);
         this.fetchPlaylist({
           userID: this.userID,
           playlistID: this.playlistID

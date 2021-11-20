@@ -29,21 +29,20 @@
       class="tracks-table__row"
       v-for="(item, index) in tracks"
       :key="index"
-      :class="isActiveTrack(item.track)"
-      :data-id="item.track.id"
+      :class="isActiveTrack(item)"
+      :data-id="item.id"
     >
       <div class="tracks-table__cell tracks-table__cell--playback">
         <track-playback
-          :trackUri="item.track.uri"
+          :trackUri="item.uri"
           :tracksUris="tracksUris"
-          :contextUri="contextUri"
           :offset="index"
         />
       </div>
 
       <div class="tracks-table__cell tracks-table__cell--addition">
         <track-addition
-          :trackID="item.track.id"
+          :trackID="item.id"
           :isSaved="savedTracks[index]"
           v-on:updateTrackstatus="onTrackUpdate"
           v-on:savedTrackRemove="onSavedTrackRemove"
@@ -51,8 +50,8 @@
       </div>
 
       <div class="tracks-table__cell">
-        {{ item.track.name }}
-        <span v-if="item.track.explicit" class="tracks-table__explicit-label">
+        {{ item.name }}
+        <span v-if="item.explicit" class="tracks-table__explicit-label">
           Explicit
         </span>
       </div>
@@ -61,12 +60,12 @@
         <div>
           <router-link
             class="tracks-table__link"
-            v-for="(artist, index) in item.track.artists"
+            v-for="(artist, index) in item.artists"
             :key="index"
             :to="{ name: 'artist', params: { id: artist.id } }"
           >
             {{ artist.name }}
-            <template v-if="index !== item.track.artists.length - 1">
+            <template v-if="index !== item.artists.length - 1">
               ,&nbsp;
             </template>
           </router-link>
@@ -76,9 +75,9 @@
       <div class="tracks-table__cell">
         <router-link
           class="tracks-table__link"
-          :to="{ name: 'album', params: { id: item.track.album.id } }"
+          :to="{ name: 'album', params: { id: item.album.id } }"
         >
-          {{ item.track.album.name }}
+          {{ item.album.name }}
         </router-link>
       </div>
 
@@ -87,7 +86,7 @@
       </div>
 
       <div class="tracks-table__cell tracks-table__cell--duration">
-        {{ item.track.duration_ms | msToMinutes }}
+        {{ item.duration_ms | msToMinutes }}
       </div>
     </div>
   </div>
@@ -123,8 +122,6 @@
 
     data() {
       return {
-        tracksUris: "",
-        tracksIds: "",
         savedTracks: []
       };
     },
@@ -134,7 +131,18 @@
         user: "user/getProfile",
         playback: "player/getPlayback",
         context: "player/getPlaybackContext"
-      })
+      }),
+      tracksUris() {
+        return this.tracks.map((el) => {
+          return el.uri;
+        });
+      },
+
+      tracksIds() {
+        return this.tracks.map((el) => {
+          return el.id;
+        });
+      },
     },
 
     methods: {
@@ -142,17 +150,6 @@
         //@todo Add columns sorting
       },
 
-      fetchTrackUris() {
-        this.tracksUris = this.tracks.map((el) => {
-          return el.track.uri;
-        });
-      },
-
-      fetchTrackIds() {
-        this.tracksIds = this.tracks.map((el) => {
-          return el.track.id;
-        });
-      },
 
       async checkSavedTracks() {
         try {
@@ -204,8 +201,6 @@
 
     watch: {
       tracks() {
-        this.fetchTrackUris();
-        this.fetchTrackIds();
         this.checkSavedTracks();
       }
     }

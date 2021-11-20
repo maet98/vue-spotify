@@ -55,7 +55,7 @@
         switch (item.type) {
           case "playlist": {
             Object.assign(to, {
-              params: { user_id: item.owner.id, playlist_id: item.id }
+              params: {  playlist_id: item.id }
             });
             break;
           }

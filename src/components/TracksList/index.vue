@@ -5,6 +5,7 @@
       :key="index"
       class="tracks-list__row"
       :class="isActiveTrack(item)"
+      @click="setSelected(item)"
     >
       <div class="tracks-list__cell" v-if="item.album">
         <img
@@ -90,7 +91,9 @@
       contextUri: {
         type: String,
         required: false
-      }
+      },
+      selected: Object,
+      setSelected: Function
     },
 
     data() {
@@ -118,6 +121,9 @@
             return el.id;
           });
         }
+      },
+      setSelectedSong(song) {
+        this.setSelected(song);
       },
 
       async checkSavedTracks() {

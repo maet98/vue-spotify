@@ -1,7 +1,6 @@
 <template>
   <nav class="navbar">
     <navbar-history />
-    <navbar-search />
     <navbar-nav />
   </nav>
 </template>

@@ -44,7 +44,9 @@
         more: null
       };
     },
-
+    mounted() {
+      console.log(this.albums.items)
+    },
     methods: {
       async getNewReleases() {
         try {
