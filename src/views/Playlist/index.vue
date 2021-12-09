@@ -1,19 +1,13 @@
 <template>
   <div class="playlist-view" v-scroll @vScroll="loadMore">
     <div class="playlist-view__content">
-      <entity-info
-        v-if="playlist"
-        :coverImg="playlist.images"
-        :type="playlist.type"
-        :name="playlist.name"
-        :description="playlist.description"
-        :author="playlist.owner.display_name"
-        :followers="playlist.followers.total"
-        :uri="playlist.uri"
-        :playlistID="playlistID"
-        :ownerID="playlist.owner.id"
-      />
-      <tracks-table :tracks="tracks" :contextUri="playlist.uri" />
+      <img class="m-4" :src="require('@/assets/' + playlistID + '.png')" width="200" >
+      <div class="text-center">
+        <tracks-table :tracks="tracks" :contextUri="playlist.uri" v-if="!loadingPlaylist"/>
+        <div class="spinner-border text-success text-center" role="status" v-else>
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -37,14 +31,17 @@
       return {
         userID: null,
         playlistID: null,
+        playlist: {},
+        loadingPlaylist: false,
         tracks: null,
         more: null
       };
     },
 
     computed: {
-      ...mapGetters("playlist", {
-        playlist: "getPlaylist"
+      ...mapGetters({
+        playlist: "playlist/getPlaylist",
+        playlistPerSong: "app/songPerPlaylist"
       })
     },
 
@@ -63,30 +60,11 @@
         };
       },
 
-      async getPlaylistTracks(userID, playlistID) {
-        try {
-          if (this.tracks.total > this.tracks.offset) {
-            const response = await api.spotify.playlists.getPlalistsTracks(
-              userID,
-              playlistID,
-              this.tracks.offset,
-              this.tracks.limit
-            );
-
-            this.tracks.offset = response.data.offset + this.tracks.limit;
-            this.tracks.total = response.data.total;
-            this.tracks.items.push(...response.data.items);
-            this.more = false;
-          }
-        } catch (e) {
-          this.notFoundPage(true);
-        }
-        this.getPlaylistTracksv2()
-      },
       async getPlaylistTracksv2() {
-        const res = await Axios.get("http://localhost:8000/song/playlists/"+this.playlistID)
-        console.log(res.data);
+        this.loadingPlaylist = true;
+        const res = await Axios.get("http://localhost:8000/song/playlists/"+this.playlistID+"?limit="+this.playlistPerSong)
         this.tracks = res.data;
+        this.loadingPlaylist = false;
       },
 
       async loadMore(ev) {
@@ -101,17 +79,18 @@
       },
 
       init() {
-        const { user_id, playlist_id } = this.$route.params;
+        const {  playlist_id } = this.$route.params;
 
-        this.userID = user_id;
         this.playlistID = playlist_id;
-
+        this.playlist = {
+          type: "playlist",
+          uri: "",
+          name: playlist_id,
+          img: "@/assets/" + playlist_id + ".png",
+          owner: ""
+        }
         // this.initData();
         this.getPlaylistTracksv2();
-        this.fetchPlaylist({
-          userID: this.userID,
-          playlistID: this.playlistID
-        });
       }
     },
 

@@ -1,6 +1,7 @@
 <template>
   <div v-if="user" class="navbar-nav">
     <div class="navbar-nav__item">
+      <i class="fas fa-cog mx-2" @click="openModal"></i>
       <router-link
         :to="{ name: 'user', params: { id: user.id } }"
         class="navbar-nav__link"
@@ -18,18 +19,24 @@
         <li class="navbar-nav__list-item" @click="logout">Logout</li>
       </ul>
     </transition>
+    <config :showModal="showModal" :close="closeModal"/>
   </div>
 </template>
 
 <script>
   import { mapGetters, mapActions } from "vuex";
+  import Config from '../config.vue';
 
   export default {
     name: "navbar-nav",
+    components: {
+        Config
+    },
 
     data() {
       return {
-        isVisible: false
+        isVisible: false,
+        showModal: false
       };
     },
 
@@ -47,6 +54,12 @@
         if (e.target !== $dropdown && !$dropdown.contains(e.target)) {
           this.close();
         }
+      },
+      closeModal() {
+        this.showModal = false;
+      },
+      openModal() {
+        this.showModal = true;
       },
 
       onClick() {

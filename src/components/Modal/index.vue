@@ -34,6 +34,10 @@
 }
 
 .modal-content {
+  width: 700px;
+}
+
+.modal-content {
   background: #1d1f20;
 }
 </style>

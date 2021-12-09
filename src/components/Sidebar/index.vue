@@ -5,7 +5,7 @@
     </div>
     <button class="sidebar__btn" @click="openModal()">
       <icon class="sidebar__btn-icon" name="plus" />
-      <span>Nueva Cancion</span>
+      <span>Nueva Canción</span>
     </button>
     <!-- @todo cover -->
     <playlist-create-modal :showModal="showModal" :close="closeModal"/>

@@ -1,10 +1,12 @@
 <template>
   <div :class="elClass">
+    <h3>Hi there</h3>
     <div class="entity-info__cover">
+      {{coverImg}}
       <img
-        v-if="coverImg[0]"
+        v-if="coverImg"
         class="entity-info__cover-img"
-        :src="coverImg[0].url"
+        :src="require(coverImg)"
         alt="cover"
       />
       <icon class="entity-info__cover-icon" name="music" />

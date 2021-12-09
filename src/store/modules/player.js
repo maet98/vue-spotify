@@ -59,10 +59,10 @@ const actions = {
 
       // eslint-disable-next-line
       const player = new Player({
-        name: "Vue Spotify Web Player",
-        getOAuthToken: (cb) => {
-          cb(token);
-        }
+          name: "Vue Spotify Web Player",
+          getOAuthToken: (cb) => {
+              cb(rootGetters["auth/getAccessToken"]);
+          }
       });
 
       // Error handling
@@ -72,7 +72,7 @@ const actions = {
 
       player.addListener("authentication_error", ({ message }) => {
         console.error(message);
-        dispatch("auth/login", null, { root: true });
+        // dispatch("auth/login", null, { root: true });
       });
 
       player.addListener("account_error", ({ message }) => {

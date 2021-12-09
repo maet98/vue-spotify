@@ -1,12 +1,15 @@
 <template>
 
   <modal v-if="showModal"> 
-    <h3 slot="header" class="modal-title">
+    <h3 slot="header" class="modal-title" v-if="!evaluation">
       Subir una nueva cancion
+    </h3>
+    <h3 slot="header" class="modal-title" v-else>
+      Evaluacion para la cancion "{{this.selected.name}}"
     </h3>
     
     <div slot="body">
-      <form>
+      <form v-if="!evaluation">
         <div>
           <label for="name">Nombre de la cacion:</label>
           <div class="container">
@@ -19,7 +22,7 @@
               </div>
             </div>
             <div class="row">
-              <tracks-list v-if="searching" :tracks="getTracks" :selected="selected" :setSelected="setSelected"/>
+              <tracks-list v-if="searching" :tracks="getTracks" :selected="selected" :setSelected="setSelected" :showArtists="true"/>
             </div>
             <div class="row">
               <div class="col">
@@ -30,18 +33,34 @@
                   :artists="selected.artists"
                 />
               </div>
-              <div class="col" style="overflow:auto; height: 600px; width: 900px;">
+              <div class="col text-center" v-if="loadingLyrics">
+                <div class="spinner-border text-success" role="status" >
+                  <span class="sr-only">Loading...</span>
+                </div>
+              </div>
+              <div class="col" style="overflow:auto; height: 600px; width: 900px;" v-else>
                 <p style="white-space: pre-line"> {{ lyrics}}  </p>
               </div>
             </div>
           </div>
         </div>
       </form>
+      <div>
+        <img v-for="emotion in this.evaluation" :key="emotion" :src="require('@/assets/'+emotion+'.png')" alt="" width="100px" height="100px" style="margin: 20px">
+      </div>
     </div>
 
     <div slot="footer">
-      <v-button :onClick="close" :isBlack="true">Cancel</v-button>
-      <v-button :onClick="create">Create</v-button>
+      <div v-if="!evaluation">
+        <v-button :onClick="clearForm" :isBlack="true">Cancelar</v-button>
+        <v-button :onClick="evaluate" v-if="!evaluating">
+          Agregar cancion
+        </v-button>
+        <v-button :onClick="evaluate" v-else>
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        </v-button>
+      </div>
+      <v-button :onClick="clearForm" :isBlack="true" v-else>Salir</v-button>
     </div>
   </modal>
 </template>
@@ -77,9 +96,12 @@
         name: "",
         description: "",
         isMore: null,
+        loadingLyrics: false,
         selected: null,
         song: null,
+        evaluating: false,
         searching: false,
+        evaluation: null,
         lyrics: ""
       };
     },
@@ -120,15 +142,15 @@
         this.findLyrics();
       },
       async findLyrics() {
+        this.loadingLyrics = true;
         console.log("findLyrics")
         var artist = "";
         for(let i = 0; i < this.selected.artists.length;i++) {
           artist += this.selected.artists[i].name + " ";
         }
-        console.log(artist)
         var ans = await axios.get("http://localhost:8000/song/lyrics/"+artist+"/"+ this.selected.name)
-        console.log(ans.data)
         this.lyrics = ans.data;
+        this.loadingLyrics = false;
 
       },
       ...mapActions({
@@ -139,26 +161,11 @@
         this.search(this.name)
         this.searching = true;
       },
-      async getSongLyrics() {
-        const Genius = require("genius-lyrics");
-        const Client = new Genius.Client()
-        alert("get song lyrics")
-
-        const ans = await Client.songs.search("Ojala llueva cafe")
-        const firstSong = ans[0];
-        console.log("About the Song:\n", firstSong, "\n");
-
-        // Ok lets get the lyrics
-        const lyrics = await firstSong.lyrics();
-        alert(lyrics)
-        console.log("Lyrics of the Song:\n", lyrics, "\n");
-        this.lyrics = lyrics;
-
-        // const client = new Genius.Client
-      },
       clearForm() {
-        this.name = "";
-        this.description = "";
+        this.evaluation = null;
+        this.selected = null;
+        this.lyrics = "";
+        this.close()
       },
 
       validate() {
@@ -177,32 +184,16 @@
         return valid;
       },
 
-      async create() {
-        if (this.validate()) {
-          try {
-            const response = await api.spotify.playlists.createPlaylist(
-              this.user.id,
-              this.name,
-              this.description
-            );
-
-            this.clearUserPlaylists();
-            this.getUserPlaylists();
-
-            this.$router.push({
-              name: "playlist",
-              params: {
-                user_id: this.user.id,
-                playlist_id: response.data.id
-              }
-            });
-
-            this.hide();
-            this.clearForm();
-          } catch (e) {
-            console.log(e);
-          }
-        }
+      async evaluate() {
+        this.evaluating = true;
+        console.log(this.selected)
+        const res = await axios.post("http://localhost:8000/song/evaluate", {
+          lyrics: this.lyrics,
+          song: this.selected
+        })
+        console.log(res.data)
+        this.evaluating = false;
+        this.evaluation = res.data;
       }
     }
   };

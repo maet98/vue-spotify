@@ -2,7 +2,6 @@
   <div v-if="!!tracks.length" class="tracks-table">
     <div class="tracks-table__row tracks-table__row--header">
       <div class="tracks-table__cell tracks-table__cell--playback"></div>
-      <div class="tracks-table__cell tracks-table__cell--addition"></div>
 
       <div class="tracks-table__cell tracks-table__cell--name">
         Title
@@ -40,15 +39,6 @@
         />
       </div>
 
-      <div class="tracks-table__cell tracks-table__cell--addition">
-        <track-addition
-          :trackID="item.id"
-          :isSaved="savedTracks[index]"
-          v-on:updateTrackstatus="onTrackUpdate"
-          v-on:savedTrackRemove="onSavedTrackRemove"
-        />
-      </div>
-
       <div class="tracks-table__cell">
         {{ item.name }}
         <span v-if="item.explicit" class="tracks-table__explicit-label">
@@ -82,7 +72,16 @@
       </div>
 
       <div class="tracks-table__cell tracks-table__cell--added-at">
-        {{ item.added_at | moment("MM-DD-YYYY") }}
+        <div v-if="ratedSong[$route.params.playlist_id][item.id] == undefined">
+          <i class="far fa-thumbs-up mr-2" style="margin-right: 20px;" @click="handleLike(true, index)"></i>
+          <i class="far fa-thumbs-down" @click="handleLike(false, index)"></i>
+        </div>
+        <div v-else-if="ratedSong[$route.params.playlist_id][item.id]">
+          <i class="fas fa-thumbs-up mr-2" style="margin-right: 20px;" @click="handleLike(true, index)"></i>
+        </div>
+        <div v-else>
+          <i class="fas fa-thumbs-down mr-2" style="margin-right: 20px;" @click="handleLike(false, index)"></i>
+        </div>
       </div>
 
       <div class="tracks-table__cell tracks-table__cell--duration">
@@ -97,6 +96,7 @@
   import { mapGetters } from "vuex";
   import TrackAddition from "@/components/TrackAddition";
   import TrackPlayback from "@/components/TrackPlayback";
+  import Axios from 'axios';
 
   export default {
     name: "tracks-table",
@@ -122,7 +122,9 @@
 
     data() {
       return {
-        savedTracks: []
+        savedTracks: [],
+        ratedSong: [],
+        update: false
       };
     },
 
@@ -144,10 +146,32 @@
         });
       },
     },
+    mounted() {
+      this.getRatedSong();
+    },
 
     methods: {
-      sortBy(sortKey, event) {
-        //@todo Add columns sorting
+      handleLike(value, id) {
+        const {playlist_id } = this.$route.params;
+        const song_id = this.tracks[id].id
+        if(this.ratedSong[playlist_id][song_id] == undefined) {
+          this.ratedSong[playlist_id][song_id] = value
+          const body = {
+            id: song_id,
+            emotion: playlist_id,
+            user: this.user.id,
+            good: value
+          }
+          Axios.post("http://localhost:8000/song/rating", body)
+        } else {
+          this.ratedSong[playlist_id][song_id] = undefined
+        }
+        this.$forceUpdate()
+      },
+      async getRatedSong() {
+        const res = await Axios.get("http://localhost:8000/song/rating/"+this.user.id)
+        console.log(res.data)
+        this.ratedSong = res.data;
       },
 
 
@@ -187,16 +211,7 @@
         };
       },
 
-      onTrackUpdate() {
-        this.checkSavedTracks();
-      },
 
-      onSavedTrackRemove(id) {
-        if (this.type === "library") {
-          document.querySelectorAll(`[data-id='${id}']`)[0].remove();
-        }
-        //@todo remove song from playback context
-      }
     },
 
     watch: {
