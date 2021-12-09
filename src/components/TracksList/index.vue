@@ -16,7 +16,7 @@
       </div>
 
       <div class="tracks-list__cell tracks-list__cell--index">
-        <span class="tracks-list__cell-index">{{ index + 1 }}</span>
+        <span class="tracks-list__cell-index">{{ offset + index + 1 }}</span>
         <track-playback
           :trackUri="item.uri"
           :tracksUris="tracksUris"
@@ -92,6 +92,7 @@
         type: String,
         required: false
       },
+      offset: Number,
       selected: Object,
       setSelected: Function
     },

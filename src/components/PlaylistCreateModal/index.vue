@@ -21,8 +21,18 @@
                 <button @click.prevent="getSearchTrack" class="search"><i class="fas fa-search"></i></button>
               </div>
             </div>
-            <div class="row">
-              <tracks-list v-if="searching" :tracks="getTracks" :selected="selected" :setSelected="setSelected" :showArtists="true"/>
+            <div class="row" >
+              <tracks-list v-if="searching" :tracks="getTracks" :selected="selected" :setSelected="setSelected" :showArtists="true" :offset="offset"/>
+              <div class="row" v-if="searching">
+                <div class="col">
+                  <v-button :onClick="previous" >atras</v-button>
+                </div>
+                <div class="col">
+                  <v-button :onClick="next" >
+                    proxima
+                  </v-button>
+                </div>
+              </div>
             </div>
             <div class="row">
               <div class="col">
@@ -38,7 +48,7 @@
                   <span class="sr-only">Loading...</span>
                 </div>
               </div>
-              <div class="col" style="overflow:auto; height: 600px; width: 900px;" v-else>
+              <div class="col" style="overflow:auto; max-height: 600px; max-width: 900px;" v-else>
                 <p style="white-space: pre-line"> {{ lyrics}}  </p>
               </div>
             </div>
@@ -99,6 +109,8 @@
         loadingLyrics: false,
         selected: null,
         song: null,
+        limit: 5,
+        offset: 0,
         evaluating: false,
         searching: false,
         evaluation: null,
@@ -126,7 +138,7 @@
       getTracks() {
         return this.tracks && this.tracks.items
           ? Object.keys(this.tracks.items)
-              .slice(0, 5)
+              .slice(this.offset, this.offset + this.limit)
               .map((key) => ({ ...this.tracks.items[key] }))
           : [];
       }
@@ -135,6 +147,21 @@
       // this.getSongLyrics();
     },
     methods: {
+      next() {
+        if(this.offset + this.limit < this.tracks.items.length) {
+          this.offset += this.limit;
+        } else {
+          this.offset = this.tracks.items.length - this.limit;
+        }
+
+      },
+      previous() {
+        if(this.offset - this.limit >= 0) {
+          this.offset -= this.limit;
+        } else {
+          this.offset = 0;
+        }
+      },
       setSelected(value) {
         this.name = "";
         this.searching = false;
